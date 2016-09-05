@@ -1,0 +1,9 @@
+{
+  "name": "candy-machina.app",
+  "version": "0.0.0",
+  "description": "CandyMachina.App",
+  "main": "server.js",
+  "author": {
+    "name": "Sebastian"
+  }
+}
