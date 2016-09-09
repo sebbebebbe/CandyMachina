@@ -1,0 +1,11 @@
+{
+  "port": 9999,
+  "client-host": "192.168.1.*",
+  "client-port": 8080,
+  "capture-rate": 500,
+  "capture-time": 100,
+  "image-path": "/var/streamtmp",
+  "image-name": "live.jpg",
+  "image-width": 640,
+  "image-height": 480
+}

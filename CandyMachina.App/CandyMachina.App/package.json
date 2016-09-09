@@ -1,9 +1,15 @@
 {
-  "name": "candy-machina.app",
+  "name": "CandyMachina",
   "version": "0.0.0",
-  "description": "CandyMachina.App",
+  "description": "CandyMachina the social media candy machine",
   "main": "server.js",
   "author": {
-    "name": "Sebastian"
+    "name": "Webstep AB"
+  },
+  "dependencies": {
+    "config-json": "0.0.1",
+    "express": "^4.12.3",
+    "socket.io": "^1.3.5",
+    "opencv": "^5.0.0"
   }
 }

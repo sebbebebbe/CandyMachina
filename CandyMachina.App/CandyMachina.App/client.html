@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Candy Machina</title>
+	<link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+	<style type="text/css">
+		html {
+			position: relative;
+			min-height: 100%;
+		}
+
+		#stream {
+			border: none;
+			height: 99%;
+			margin: 0px auto;
+			display: block;
+			margin-top: 20px;
+			margin-bottom: 20px;
+		}
+	</style>
+	<script src="http://code.jquery.com/jquery.js"></script>
+	<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	<script src="http://localhost:9999/socket.io/socket.io.js"></script>
+</head>
+<body>
+	<canvas id="canvas-video" width="640" height="480"></canvas>
+
+	<script>
+		var canvas = document.getElementById('canvas-video');
+		var context = canvas.getContext('2d');
+		var img = new Image();
+		var socket = io.connect('http://localhost:9999');
+
+		$(document).ready(function () {
+			socket.emit('start-stream');
+		});
+
+		$(window).unload(function () {
+			socket.emit('stop-stream');
+		});
+
+		socket.on('live-stream', function (image) {
+			var uint8Arr = new Uint8Array(image.buffer);
+			var str = String.fromCharCode.apply(null, uint8Arr);
+			var base64String = btoa(str);
+
+			img.onload = function () {
+				context.drawImage(this, 0, 0, canvas.width, canvas.height);
+			};
+			img.src = 'data:image/png;base64,' + base64String;
+
+			$('#start').hide();
+		});
+	</script>
+</body>
+</html>
