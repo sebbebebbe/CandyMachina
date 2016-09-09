@@ -3,5 +3,5 @@
       "key": "something",
       "tags": [ "somekey", "someotherkey" ]
     },
-    "keyMessage": "hello world",
+    "keyMessage": "hello world"
 } 
