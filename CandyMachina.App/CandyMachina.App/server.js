@@ -6,6 +6,7 @@ var path = require('path');
 var configLoader = require('config-json');
 var cv = require('opencv');
 
+var settings = require('./settings.json');
 configLoader.load('./config.json');
 
 var intervalObj;
@@ -34,6 +35,15 @@ io.on('connection', function (socket) {
         }
     });
 });
+
++function renderTags() {
+        var data = "";
+        for(key in settings.twitter.tags) {
+                data += data.length == 0 ? '' : ',';
+                data += '#' + settings.twitter.tags[key];
+            }
+        return data;
+    }
 
 function startStreaming() {
     console.log('Starting stream.');
