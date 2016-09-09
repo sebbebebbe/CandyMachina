@@ -1,14 +1,7 @@
 {
-  "+" {
-    "+": null,
     "twitter": {
-      "+": null,
       "key": "something",
-      "+": null,
-      "tags": [ "somekey", "someotherkey" ],
-      "+"
+      "tags": [ "somekey", "someotherkey" ]
     },
-    "+": null,
     "keyMessage": "hello world",
-    "+"
-  } 
+} 
