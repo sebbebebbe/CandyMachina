@@ -87,3 +87,10 @@ function analyzeAndSendImage() {
 function getAbsoluteImagePath() {
     return path.join(config['image-path'], config['image-name']);
 }
+
+var index = fs.readFileSync(__dirname + "client.html", 'utf8').replace('{url}',  'candymachina'  + ':' + config['port']);
+app.get('/', function (req, res) {
+	res.send(index);
+});
+
+
