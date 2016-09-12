@@ -11,6 +11,19 @@
 			position: relative;
 			min-height: 100%;
 		}
+		body {
+				background: #4E1B54;
+			color: #FFFFFF;
+		}
+
+		ul
+			{
+				list-style-type: none;
+			}
+
+		.timeline-Widget {
+			background: transparent !important;
+		}
 
 		#stream {
 			border: none;
@@ -20,40 +33,207 @@
 			margin-top: 20px;
 			margin-bottom: 20px;
 		}
+
+		.layout-r {
+			letter-spacing: -0.31em;
+			*letter-spacing: normal;
+			*word-spacing: -0.43em;
+			text-rendering: optimizespeed;
+		}
+
+		.opera-only :-o-prefocus,
+		.layout-r {
+			word-spacing: -0.43em;
+		}
+
+
+		.layout-c {
+			display: inline-block;
+			zoom: 1;
+			*display: inline;
+			letter-spacing: normal;
+			word-spacing: normal;
+			vertical-align: top;
+			text-rendering: auto;
+		}
+
+
+		.layout-c-1, .layout-c-1-2, .layout-c-1-3, .layout-c-2-3 {
+			display: inline-block;
+			zoom: 1;
+			*display: inline;
+			letter-spacing: normal;
+			word-spacing: normal;
+			vertical-align: top;
+			text-rendering: auto;
+		}
+
+		.layout-c-1 {
+			display: block;
+		}
+
+		.layout-c-1-2 {
+			width: 50%;
+		}
+
+		.layout-offset-1-2 {
+			margin-left: 50%;
+		}
+
+		.layout-c-1-3 {
+			width: 33.33333%;
+		}
+
+		.layout-offset-1-3 {
+			margin-left: 33.33333%;
+		}
+
+		.layout-c-2-3 {
+			width: 66.66667%;
+		}
+
+		.layout-offset-2-3 {
+			margin-left: 66.66667%;
+		}
+
+		.layout-r-r {
+			letter-spacing: -0.31em;
+			*letter-spacing: normal;
+			word-spacing: -0.43em;
+		}
+
+		.opera-only :-o-prefocus,
+		.layout-r-r {
+			word-spacing: -0.43em;
+		}
+
+
+			.layout-r-r img {
+				max-width: 100%;
+			}
+
+		@media (min-width:980px) {
+			.layout-visible-phone {
+				display: none;
+			}
+
+			.layout-visible-tablet {
+				display: none;
+			}
+
+			.layout-visible-desktop {
+			}
+
+			.layout-hidden-phone {
+			}
+
+			.layout-hidden-tablet {
+			}
+
+			.layout-hidden-desktop {
+				display: none;
+			}
+		}
+
+		@media (max-width:480px) {
+			.layout-r-r > [class ^= "layout-c"] {
+				width: 100%;
+			}
+		}
+
+		@media (max-width:767px) {
+
+			.layout-r-r > [class ^= "layout-c"] {
+				width: 100%;
+			}
+
+			.layout-visible-phone {
+			}
+
+			.layout-hidden-phone {
+				display: none;
+			}
+
+			.layout-hidden-desktop {
+			}
+
+			.layout-visible-desktop {
+				display: none;
+			}
+		}
+
+		@media (min-width:768px) and (max-width:979px) {
+			.layout-visible-tablet {
+			}
+
+			.layout-hidden-tablet {
+				display: none;
+			}
+
+			.layout-hidden-desktop {
+			}
+
+			.layout-visible-desktop {
+				display: none;
+			}
+
+		}
 	</style>
 	<script src="http://code.jquery.com/jquery.js"></script>
 	<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 	<script src="http://{url}/socket.io/socket.io.js"></script>
 </head>
 <body>
-	<canvas id="canvas-video" width="640" height="480"></canvas>
+<div class="layout-c-1">
+	<h1>Candy machina logo (WIP)</h1>
+</div>
+<div class="layout-c-1-3">
+	<h2>Would you like some candy?</h2>
+	<p>Inorder to get some candy we only want a nice picture of you for our Twitter feed</p>
+	<p>Follow these steps:</p>
+	<ul>
+		<li>1. Look into the camera </li>
+		<li>2. Give a big smile and hold</li>
+		<li>3. See your photo on Twitter </li>
+		<li>4. Candy time!</li>
+	</ul>
+</div>
+<div class="layout-c-1-3">
+	<a class="twitter-timeline" href="https://twitter.com/hashtag/webstep" data-widget-id="775418538395889668">#webstep Tweets</a>
+	<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 
-	<script>
-		var canvas = document.getElementById('canvas-video');
-		var context = canvas.getContext('2d');
-		var img = new Image();
-		var socket = io.connect('http://{url}');
+</div>
+<div class="layout-c-1-3">
+	<canvas id="canvas-video"  width="640" height="480"></canvas>
+</div>
 
-		$(document).ready(function () {
-			socket.emit('start-stream');
-		});
 
-		$(window).unload(function () {
-			socket.emit('stop-stream');
-		});
+<script>
+	var canvas = document.getElementById('canvas-video');
+	var context = canvas.getContext('2d');
+	var img = new Image();
+	var socket = io.connect('http://{url}');
 
-		socket.on('live-stream', function (image) {
-			var uint8Arr = new Uint8Array(image.buffer);
-			var str = String.fromCharCode.apply(null, uint8Arr);
-			var base64String = btoa(str);
+	$(document).ready(function() {
+		socket.emit('start-stream');
+	});
 
-			img.onload = function () {
-				context.drawImage(this, 0, 0, canvas.width, canvas.height);
-			};
-			img.src = 'data:image/png;base64,' + base64String;
+	$(window).unload(function() {
+		socket.emit('stop-stream');
+	});
 
-			$('#start').hide();
-		});
-	</script>
+	socket.on('live-stream', function(image) {
+		var uint8Arr = new Uint8Array(image.buffer);
+		var str = String.fromCharCode.apply(null, uint8Arr);
+		var base64String = btoa(str);
+
+		img.onload = function() {
+			context.drawImage(this, 0, 0, canvas.width, canvas.height);
+		};
+		img.src = 'data:image/png;base64,' + base64String;
+
+		$('#start').hide();
+	});
+</script>
 </body>
 </html>
