@@ -14,7 +14,8 @@ var config = configLoader.get();
 var process;
 var isStreaming = false;
 
-io.origins(config['client-host'] + ':' + config['client-port']);
+//dsiabled for now since its simpler to test remotely
+//io.origins(config['client-host'] + ':' + config['client-port']);
 
 http.listen(config['port'], function () {
     console.log('listening on *:' + config['port']);
@@ -59,7 +60,7 @@ function stopStreaming() {
 
 var camera = new cv.VideoCapture(0);
 camera.setWidth(config['image-width']);
-camera.setHeight(config['client-height']);
+camera.setHeight(config['image-height']);
 
 var COLOR = [0, 255, 0]; // default red
 var thickness = 2; // default 1
@@ -70,7 +71,7 @@ function analyzeAndSendImage() {
         if (err) throw err;
         if (im.width() < 1 || im.height() < 1) return;
         
-        im.detectObject('/haarcascades/haarcascade_eye_tree_eyeglasses.xml', {}, function (err, faces) {
+        im.detectObject('haarcascades/haarcascade_frontalface_alt.xml', {}, function (err, faces) {
             if (err) throw err;
 
             for (var i = 0; i < faces.length; i++) {
