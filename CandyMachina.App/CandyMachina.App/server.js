@@ -77,11 +77,25 @@ function analyzeAndSendImage() {
             for (var i = 0; i < faces.length; i++) {
                 face = faces[i];
                 im.rectangle([face.x, face.y], [face.width, face.height], COLOR, 2);
-            }
-
-            io.sockets.emit('live-stream', { buffer: im.toBuffer() });
+        	
+		var im2 = im.roi(face.x, face.y, face.width, face.height)
+		
+		im2.detectObject('haarcascades/smiled_01.xml', {}, function(err,mouth)
+		{
+			if(err) throw err;
+			console.log(mouth);
+			if(mouth[0])
+			{
+			  console.log('Smile detected');
+			  console.log(mouth[0].x + ' '+  mouth[0].y);
+			  im.rectangle([face.x +  mouth[0].x, face.y +  mouth[0].y], [mouth[0].width, mouth[0].height], [0,255,255], 2);
+			  io.sockets.emit('live-stream', { buffer: im.toBuffer() });
+			}		
+		});
+            }	     
+           io.sockets.emit('live-stream', { buffer: im.toBuffer() });
         });
-
+      
     });
 }
 
