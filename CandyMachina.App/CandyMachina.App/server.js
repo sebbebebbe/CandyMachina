@@ -37,14 +37,14 @@ io.on('connection', function (socket) {
     });
 });
 
-+function renderTags() {
-        var data = "";
-        for(key in settings.twitter.tags) {
-                data += data.length == 0 ? '' : ',';
-                data += '#' + settings.twitter.tags[key];
-            }
-        return data;
-    }
+function renderTags() {
+    var data = "";
+    for(key in settings.twitter.tags) {
+            data += data.length == 0 ? '' : ',';
+            data += '#' + settings.twitter.tags[key];
+        }
+    return data;
+}
 
 function startStreaming() {
     console.log('Starting stream.');
