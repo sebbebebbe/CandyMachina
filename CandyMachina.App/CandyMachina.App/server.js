@@ -5,6 +5,7 @@ var fs = require('fs');
 var path = require('path');
 var configLoader = require('config-json');
 var cv = require('opencv');
+var twitter  = require('./twitter');
 
 var settings = require('./settings.json');
 configLoader.load('./config.json');
@@ -20,6 +21,8 @@ var isStreaming = false;
 http.listen(config['port'], function () {
     console.log('listening on *:' + config['port']);
 });
+
+var nextTwitter = new Date().getTime();
 
 io.on('connection', function (socket) {
     socket.on('start-stream', function () {
@@ -37,12 +40,12 @@ io.on('connection', function (socket) {
     });
 });
 
-function renderTags() {
+function twitterTags() {
     var data = "";
     for(key in settings.twitter.tags) {
-            data += data.length == 0 ? '' : ',';
-            data += '#' + settings.twitter.tags[key];
-        }
+	data += data.length == 0 ? '' : ',';
+        data += '#' + settings.twitter.tags[key];
+    }
     return data;
 }
 
@@ -58,15 +61,17 @@ function stopStreaming() {
     clearInterval(intervalObj);
 }
 
-var camera = new cv.VideoCapture(0);
-camera.setWidth(config['image-width']);
-camera.setHeight(config['image-height']);
+var camera = cv ? new cv.VideoCapture(0) : console.log("cv not found");
+if(camera) {
+  camera.setWidth(config['image-width']);
+  camera.setHeight(config['image-height']);
+}
 
 var COLOR = [0, 255, 0]; // default red
 var thickness = 2; // default 1
 
 function analyzeAndSendImage() {
-
+if(camera)	
     camera.read(function (err, im) {
         if (err) throw err;
         if (im.width() < 1 || im.height() < 1) return;
@@ -86,6 +91,16 @@ function analyzeAndSendImage() {
 			console.log(mouth);
 			if(mouth[0])
 			{
+			  var curTime = new Date().getTime();
+			  
+			  if (settings.twitter.enable && curTime > nextTwitter) {
+				console.log("i am now tweeting ************************************** ");
+				im.convertGrayscale();
+				twitter.postImage(settings.twitter.message, twitterTags(), im.toBuffer());
+				next_twitter = curTime + 10*1000;
+			  } else {
+				console.log("twitter is disabled");
+			  }
 			  console.log('Smile detected');
 			  console.log(mouth[0].x + ' '+  mouth[0].y);
 			  im.rectangle([face.x +  mouth[0].x, face.y +  mouth[0].y], [mouth[0].width, mouth[0].height], [0,255,255], 2);

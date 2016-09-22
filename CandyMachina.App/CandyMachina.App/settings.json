@@ -1,13 +1,15 @@
 {
     "twitter": {
+      "enable": true,
       "key": "something",
-      "tags": [ "somekey", "someotherkey" ]
+      "message": "Getting free candy!",
+      "tags": [ "öredev", "webstep","freecandy", "candymachine" ]
     },
     "keyMessage": "hello world",
     "server": {
       "port": 9999
     },
-    "camera":{
+    "camera": {
       "image-width": 640,
       "image-height": 480
     },
