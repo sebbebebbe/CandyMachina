@@ -11,15 +11,62 @@
 			position: relative;
 			min-height: 100%;
 		}
+
 		body {
-				background: #4E1B54;
+			/*background: #4E1B54;*/
+			background: -webkit-linear-gradient(45deg, #be66cc, #CC668E);
+			background: linear-gradient(45deg, #be66cc, #CC668E);
 			color: #FFFFFF;
 		}
 
-		ul
-			{
-				list-style-type: none;
-			}
+		h1 {
+			font-family: 'Bungee Shade', cursive;
+			text-align: center;
+		}
+
+		ul {
+			list-style-type: none;
+		}
+
+		.layoutWrapper {
+			display: flex;
+			justify-content: center;
+			font-family: 'Abel', sans-serif;
+		}
+
+		.videoWrapper {
+			margin-top: 76px;
+		}
+
+		.candy1 {
+			background: url(images/candy1.png) no-repeat center bottom;
+		}
+
+		.candy2 {
+			background: url(images/candy2.png) no-repeat center bottom;
+		}
+
+		.candy3 {
+			background: url(images/candy3.png) no-repeat center bottom;
+		}
+
+		.topRightImage {
+			display: block;
+			float: right;
+			position: relative;
+			top: -10px;
+			right: -10px;
+			height: 20px;
+		}
+
+		.topLettImage {
+			display: block;
+			float: left;
+			position: relative;
+			top: -10px;
+			right: -10px;
+			height: 20px;
+		}
 
 		.timeline-Widget {
 			background: transparent !important;
@@ -66,6 +113,7 @@
 			word-spacing: normal;
 			vertical-align: top;
 			text-rendering: auto;
+			padding: 8px;
 		}
 
 		.layout-c-1 {
@@ -176,35 +224,51 @@
 			.layout-visible-desktop {
 				display: none;
 			}
-
 		}
 	</style>
 	<script src="http://code.jquery.com/jquery.js"></script>
 	<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 	<script src="http://{url}/socket.io/socket.io.js"></script>
+	<link href="https://fonts.googleapis.com/css?family=Abel|Bungee+Shade" rel="stylesheet">
 </head>
 <body>
-<div class="layout-c-1">
-	<h1>Candy machina logo (WIP)</h1>
-</div>
-<div class="layout-c-1-3">
-	<h2>Would you like some candy?</h2>
-	<p>Inorder to get some candy we only want a nice picture of you for our Twitter feed</p>
-	<p>Follow these steps:</p>
-	<ul>
-		<li>1. Look into the camera </li>
-		<li>2. Give a big smile and hold</li>
-		<li>3. See your photo on Twitter </li>
-		<li>4. Candy time!</li>
-	</ul>
-</div>
-<div class="layout-c-1-3">
-	<a class="twitter-timeline" href="https://twitter.com/hashtag/webstep" data-widget-id="775418538395889668">#webstep Tweets</a>
-	<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 
+	<div class="candy1 topLettImage"></div>
+	<div class="candy1 topRightImage"></div>
+<div class="layout-c-1">
+	<h1>The WebStep Candy Machine</h1>
 </div>
-<div class="layout-c-1-3">
-	<canvas id="canvas-video"  width="640" height="480"></canvas>
+<div class="layoutWrapper">
+	<div class="layout-c-1-3">
+		<h2>Would you like some candy?</h2>
+		<p>Inorder to get some candy we only want a nice picture of you for our Twitter feed</p>
+		<p>Follow these steps:</p>
+		<ul>
+			<li>1. Look into the camera </li>
+			<li>2. Give a big smile and hold</li>
+			<li>3. See your photo on Twitter </li>
+			<li>4. Candy time!</li>
+		</ul>
+		<div class="videoWrapper">
+			<!--<img src="placeholder.jpg" width="400"/>-->
+			<canvas id="canvas-video" width="400"/>
+		</div>
+	</div>
+	<div class="layout-c-1-3">
+		<a class="twitter-timeline" href="https://twitter.com/hashtag/webstep" data-widget-id="775418538395889668">#webstep Tweets</a>
+		<script>
+			!function(d, s, id) {
+				var js, fjs = d.getElementsByTagName(s)[0], p = /^http:/.test(d.location) ? 'http' : 'https';
+				if (!d.getElementById(id)) {
+					js = d.createElement(s);
+					js.id = id;
+					js.src = p + "://platform.twitter.com/widgets.js";
+					fjs.parentNode.insertBefore(js, fjs);
+				}
+			}(document, "script", "twitter-wjs");
+		</script>
+
+	</div>
 </div>
 
 
