@@ -1,11 +1,12 @@
-﻿var app = require('express')();
+var app = require('express')();
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var fs = require('fs');
 var path = require('path');
 var configLoader = require('config-json');
 var cv = require('opencv');
-var twitter  = require('./twitter');
+var twitter = require('./twitter');
+var dispenser = require('./dispenser');
 
 var settings = require('./settings.json');
 configLoader.load('./config.json');
@@ -42,8 +43,8 @@ io.on('connection', function (socket) {
 
 function twitterTags() {
     var data = "";
-    for(key in settings.twitter.tags) {
-	data += data.length == 0 ? '' : ',';
+    for (key in settings.twitter.tags) {
+        data += data.length == 0 ? '' : ',';
         data += '#' + settings.twitter.tags[key];
     }
     return data;
@@ -62,65 +63,66 @@ function stopStreaming() {
 }
 
 var camera = cv ? new cv.VideoCapture(0) : console.log("cv not found");
-if(camera) {
-  camera.setWidth(config['image-width']);
-  camera.setHeight(config['image-height']);
+if (camera) {
+    camera.setWidth(config['image-width']);
+    camera.setHeight(config['image-height']);
 }
 
 var COLOR = [0, 255, 0]; // default red
 var thickness = 2; // default 1
 
 function analyzeAndSendImage() {
-if(camera)	
-    camera.read(function (err, im) {
-        if (err) throw err;
-        if (im.width() < 1 || im.height() < 1) return;
-        
-        im.detectObject('haarcascades/haarcascade_frontalface_alt.xml', {}, function (err, faces) {
+    if (camera)
+        camera.read(function (err, im) {
             if (err) throw err;
+            if (im.width() < 1 || im.height() < 1) return;
 
-            for (var i = 0; i < faces.length; i++) {
-                face = faces[i];
-                im.rectangle([face.x, face.y], [face.width, face.height], COLOR, 2);
-        	
-		var im2 = im.roi(face.x, face.y, face.width, face.height)
-		
-		im2.detectObject('haarcascades/smiled_01.xml', {}, function(err,mouth)
-		{
-			if(err) throw err;
-			console.log(mouth);
-			if(mouth[0])
-			{
-			  var curTime = new Date().getTime();
-			  
-			  if (settings.twitter.enable && curTime > nextTwitter) {
-				console.log("i am now tweeting ************************************** ");
-				im.convertGrayscale();
-				twitter.postImage(settings.twitter.message, twitterTags(), im.toBuffer());
-				next_twitter = curTime + 10*1000;
-			  } else {
-				console.log("twitter is disabled");
-			  }
-			  console.log('Smile detected');
-			  console.log(mouth[0].x + ' '+  mouth[0].y);
-			  im.rectangle([face.x +  mouth[0].x, face.y +  mouth[0].y], [mouth[0].width, mouth[0].height], [0,255,255], 2);
-			  io.sockets.emit('live-stream', { buffer: im.toBuffer() });
-			}		
-		});
-            }	     
-           io.sockets.emit('live-stream', { buffer: im.toBuffer() });
+            im.detectObject('haarcascades/haarcascade_frontalface_alt.xml', {}, function (err, faces) {
+                if (err) throw err;
+
+                for (var i = 0; i < faces.length; i++) {
+                    face = faces[i];
+                    im.rectangle([face.x, face.y], [face.width, face.height], COLOR, 2);
+
+                    var im2 = im.roi(face.x, face.y, face.width, face.height)
+
+                    im2.detectObject('haarcascades/smiled_01.xml', {}, function (err, mouth) {
+                        if (err) throw err;
+                        console.log(mouth);
+                        if (mouth[0]) {
+                            var curTime = new Date().getTime();
+
+                            if (settings.twitter.enable && curTime > nextTwitter) {
+                                console.log("i am now tweeting ************************************** ");
+                                im.convertGrayscale();
+                                twitter.postImage(settings.twitter.message, twitterTags(), im.toBuffer());
+                                next_twitter = curTime + 10 * 1000;
+                            } else {
+                                console.log("twitter is disabled");
+                            }
+                            console.log('Smile detected');
+                            dispenser.turn();
+                            console.log(mouth[0].x + ' ' + mouth[0].y);
+                            im.rectangle([face.x + mouth[0].x, face.y + mouth[0].y], [mouth[0].width, mouth[0].height], [0, 255, 255], 2);
+                            io.sockets.emit('live-stream', {
+                                buffer: im.toBuffer()
+                            });
+                        }
+                    });
+                }
+                io.sockets.emit('live-stream', {
+                    buffer: im.toBuffer()
+                });
+            });
+
         });
-      
-    });
 }
 
 function getAbsoluteImagePath() {
     return path.join(config['image-path'], config['image-name']);
 }
 
-var index = fs.readFileSync(__dirname + "/client.html", 'utf8').replace(/{url}/g,  'candymachina'  + ':' + config['port']);
+var index = fs.readFileSync(__dirname + "/client.html", 'utf8').replace(/{url}/g, 'candymachina' + ':' + config['port']);
 app.get('/', function (req, res) {
-	res.send(index);
+    res.send(index);
 });
-
-
