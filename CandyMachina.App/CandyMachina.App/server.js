@@ -5,7 +5,7 @@ var fs = require('fs');
 var path = require('path');
 var configLoader = require('config-json');
 var cv = require('opencv');
-var twitter = require('./twitter');
+//var twitter = require('./twitter');
 var dispenser = require('./dispenser');
 
 var settings = require('./settings.json');
@@ -95,7 +95,7 @@ function analyzeAndSendImage() {
                             if (settings.twitter.enable && curTime > nextTwitter) {
                                 console.log("i am now tweeting ************************************** ");
                                 im.convertGrayscale();
-                                twitter.postImage(settings.twitter.message, twitterTags(), im.toBuffer());
+                                //twitter.postImage(settings.twitter.message, twitterTags(), im.toBuffer());
                                 next_twitter = curTime + 10 * 1000;
                             } else {
                                 console.log("twitter is disabled");
@@ -125,4 +125,9 @@ function getAbsoluteImagePath() {
 var index = fs.readFileSync(__dirname + "/client.html", 'utf8').replace(/{url}/g, 'candymachina' + ':' + config['port']);
 app.get('/', function (req, res) {
     res.send(index);
+});
+
+app.get('/turn', function(req,res){
+    res.send('turning');
+    dispenser.turn(function(){console.log('dispenser turned');});
 });
