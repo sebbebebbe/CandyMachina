@@ -31,8 +31,20 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="server.js" />
+    <Content Include="client.html" />
+    <Content Include="config.json" />
+    <Content Include="haarcascades\haarcascade_eye_tree_eyeglasses.xml" />
+    <Content Include="haarcascades\haarcascade_smile.xml" />
+    <Content Include="images\candy1.png" />
+    <Content Include="images\candy2.png" />
+    <Content Include="images\candy3.png" />
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <Content Include="settings.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="haarcascades\" />
+    <Folder Include="images\" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />
