@@ -76,6 +76,7 @@ var DELAY_IN_SEC = 20 * 1000;
 
 function onSmileFound(err, mouth) {
     if (err) throw err;
+    console.log("found mouths: " + mouth.length + " " + (curTIme > nextUpdate));
     if (mouth.length > 0 && curTime > nextUpdate) {
         console.log('Smile detected');
         if (settings.twitter.enable) {
@@ -124,11 +125,9 @@ function analyzeAndSendImage() {
                 buffer: im.toBuffer()
             });
             if (curTime > nextUpdate) {
-                console.log("updating: " + (curTime - nextUpdate));
+                console.log("updating: " + ((curTime - nextUpdate)/1000));
                 im.detectObject('haarcascades/haarcascade_frontalface_alt.xml', {}, onFaceFound.bind(im));
-
             }
-
         });
     }
 }
