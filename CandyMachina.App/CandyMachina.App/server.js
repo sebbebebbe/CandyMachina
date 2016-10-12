@@ -15,6 +15,8 @@ var intervalObj;
 var config = configLoader.get();
 var process;
 var isStreaming = false;
+var nextTwitter = new Date().getTime();
+
 
 //dsiabled for now since its simpler to test remotely
 //io.origins(config['client-host'] + ':' + config['client-port']);
@@ -23,7 +25,7 @@ http.listen(config['port'], function () {
     console.log('listening on *:' + config['port']);
 });
 
-var nextTwitter = new Date().getTime();
+
 
 io.on('connection', function (socket) {
     socket.on('start-stream', function () {
@@ -71,6 +73,31 @@ if (camera) {
 var COLOR = [0, 255, 0]; // default red
 var thickness = 2; // default 1
 
+function onSmileFound(err, mouth) {
+
+    if (err) throw err;
+    console.log(mouth);
+    if (mouth[0]) {
+        var curTime = new Date().getTime();
+
+        if (settings.twitter.enable && curTime > nextTwitter) {
+            console.log("i am now tweeting ************************************** " + nextTwitter);
+            im.convertGrayscale();
+            twitter.postImage(settings.twitter.message, twitterTags(), im.toBuffer());
+            nextTwitter = curTime + 10 * 1000;
+        } else {
+            console.log("twitter is disabled");
+        }
+        console.log('Smile detected');
+        dispenser.turn();
+        console.log(mouth[0].x + ' ' + mouth[0].y);
+        im.rectangle([face.x + mouth[0].x, face.y + mouth[0].y], [mouth[0].width, mouth[0].height], [0, 255, 255], 2);
+        io.sockets.emit('live-stream', {
+            buffer: im.toBuffer()
+        });
+    }
+}
+
 function analyzeAndSendImage() {
     if (camera)
         camera.read(function (err, im) {
@@ -79,40 +106,22 @@ function analyzeAndSendImage() {
 
             im.detectObject('haarcascades/haarcascade_frontalface_alt.xml', {}, function (err, faces) {
                 if (err) throw err;
-
+                console.log("callback for face is called");
+                console.log("found " + faces.length + "face");
+                var oldFace = faces[0];
                 for (var i = 0; i < faces.length; i++) {
                     face = faces[i];
                     im.rectangle([face.x, face.y], [face.width, face.height], COLOR, 2);
 
-                    var im2 = im.roi(face.x, face.y, face.width, face.height)
-
-                    im2.detectObject('haarcascades/smiled_01.xml', {}, function (err, mouth) {
-                        if (err) throw err;
-                        console.log(mouth);
-                        if (mouth[0]) {
-                            var curTime = new Date().getTime();
-
-                            if (settings.twitter.enable && curTime > nextTwitter) {
-                                console.log("i am now tweeting ************************************** ");
-                                im.convertGrayscale();
-                                twitter.postImage(settings.twitter.message, twitterTags(), im.toBuffer());
-                                next_twitter = curTime + 10 * 1000;
-                            } else {
-                                console.log("twitter is disabled");
-                            }
-                            console.log('Smile detected');
-                            dispenser.turn();
-                            console.log(mouth[0].x + ' ' + mouth[0].y);
-                            im.rectangle([face.x + mouth[0].x, face.y + mouth[0].y], [mouth[0].width, mouth[0].height], [0, 255, 255], 2);
-                            io.sockets.emit('live-stream', {
-                                buffer: im.toBuffer()
-                            });
-                        }
-                    });
+                    if( face.width > oldFace.width && face.height > oldFace.height) {
+                       oldFace = face;
+                        im2 = im.roi(face.x, face.y, face.width, face.height);
+                        im2.detectObject('haarcascades/smiled_01.xml', {}, onSmileFound);
+                    }
                 }
-                io.sockets.emit('live-stream', {
-                    buffer: im.toBuffer()
-                });
+            });
+            io.sockets.emit('live-stream', {
+                buffer: im.toBuffer()
             });
 
         });
@@ -122,7 +131,7 @@ function getAbsoluteImagePath() {
     return path.join(config['image-path'], config['image-name']);
 }
 
-var index = fs.readFileSync(__dirname + "/client.html", 'utf8').replace(/{url}/g, 'candymachina' + ':' + config['port']);
+var index = fs.readFileSync(__dirname + "/client.html", 'utf8').replace(/{url}/g, '192.168.1.37' + ':' + config['port']);
 app.get('/', function (req, res) {
     res.send(index);
 });
