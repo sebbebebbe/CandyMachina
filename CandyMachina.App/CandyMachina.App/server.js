@@ -75,22 +75,19 @@ var THICKSNESS = 2; // default 1
 function onSmileFound(err, mouth) {
 
     if (err) throw err;
-    console.log(mouth);
+    console.log("mouth: " + mouth);
     if (mouth[0]) {
-        var curTime = new Date().getTime();
-
-        if (settings.twitter.enable && curTime > nextUpdate) {
+        if (settings.twitter.enable) {
             console.log("i am now tweeting ************************************** " + nextUpdate);
             this.convertGrayscale();
             twitter.postImage(settings.twitter.message, twitterTags(), this.toBuffer());
-            nextUpdate = curTime + 10 * 1000;
         } else {
             console.log("twitter is disabled");
         }
         console.log('Smile detected');
         dispenser.turn();
-        console.log(mouth[0].x + ' ' + mouth[0].y);
-        this.rectangle([face.x + mouth[0].x, face.y + mouth[0].y], [mouth[0].width, mouth[0].height], [0, 255, 255], 2);
+        console.log("mouth cordinates" + mouth[0].x + ' ' + mouth[0].y);
+        //this.rectangle([face.x + mouth[0].x, face.y + mouth[0].y], [mouth[0].width, mouth[0].height], [0, 255, 255], 2);
         io.sockets.emit('live-stream', {
             buffer: this.toBuffer()
         });
@@ -102,7 +99,7 @@ function onFaceFound(err, faces) {
     console.log("callback for face is called");
     console.log("found " + faces.length + "face");
     var oldFace = faces[0];
-    var im2;
+    var im2 = this.roi(oldFace.x, oldFace.y, oldFace.width, oldFace.height);
     for (var i = 0; i < faces.length; i++) {
         var face = faces[i];
         this.rectangle([face.x, face.y], [face.width, face.height], COLOR, THICKSNESS);
@@ -121,7 +118,7 @@ function analyzeAndSendImage() {
             if (err) throw err;
             if (im.width() < 1 || im.height() < 1) return;
             var curTime = new Date().getTime();
-            console.log("should i update? " + curTime > nextUpdate);
+            console.log("should i update? " + (curTime > nextUpdate));
             if (curTime > nextUpdate) {
                 im.detectObject('haarcascades/haarcascade_frontalface_alt.xml', {}, onFaceFound.bind(im));
                 nextUpdate = curTime + 10 * 1000;
