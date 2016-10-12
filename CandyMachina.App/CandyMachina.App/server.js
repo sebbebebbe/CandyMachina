@@ -70,7 +70,7 @@ if (camera) {
 }
 
 var COLOR = [0, 255, 0]; // default red
-var thickness = 2; // default 1
+var THICKSNESS = 2; // default 1
 
 function onSmileFound(err, mouth) {
 
@@ -104,12 +104,11 @@ function onFaceFound(err, faces) {
     var oldFace = faces[0];
     for (var i = 0; i < faces.length; i++) {
         face = faces[i];
-        im.rectangle([face.x, face.y], [face.width, face.height], COLOR, 2);
+        this.rectangle([face.x, face.y], [face.width, face.height], COLOR, THICKSNESS);
 
         if (face.width > oldFace.width && face.height > oldFace.height) {
             oldFace = face;
             im2 = im.roi(face.x, face.y, face.width, face.height);
-
         }
     }
     im2.detectObject('haarcascades/smiled_01.xml', {}, onSmileFound);
@@ -123,7 +122,7 @@ function analyzeAndSendImage() {
             var curTime = new Date().getTime();
             console.log("should i update? " + curTime > nextUpdate);
             if (curTime > nextUpdate) {
-                im.detectObject('haarcascades/haarcascade_frontalface_alt.xml', {}, onfaceFound);
+                im.detectObject('haarcascades/haarcascade_frontalface_alt.xml', {}, onFaceFound.bind(im));
                 nextTwitter = curTime + 10 * 1000;
             }
             io.sockets.emit('live-stream', {
