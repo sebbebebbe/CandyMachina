@@ -71,14 +71,13 @@ if (camera) {
 
 var COLOR = [0, 255, 0]; // default red
 var THICKSNESS = 2; // default 1
+var DELAY_IN_SEC = 20 * 1000;  
 
 function onSmileFound(err, mouth) {
-
     if (err) throw err;
-    console.log("mouth: " + mouth);
-    if (mouth[0]) {
+    if (mouth.length > 0) {
         if (settings.twitter.enable) {
-            console.log("i am now tweeting ************************************** " + nextUpdate);
+            console.log("i am now tweeting);
             this.convertGrayscale();
             twitter.postImage(settings.twitter.message, twitterTags(), this.toBuffer());
         } else {
@@ -86,18 +85,19 @@ function onSmileFound(err, mouth) {
         }
         console.log('Smile detected');
         dispenser.turn();
-        console.log("mouth cordinates" + mouth[0].x + ' ' + mouth[0].y);
+        console.log("mouth cordinates: " + mouth[0].x + ' ' + mouth[0].y);
         //this.rectangle([face.x + mouth[0].x, face.y + mouth[0].y], [mouth[0].width, mouth[0].height], [0, 255, 255], 2);
         io.sockets.emit('live-stream', {
             buffer: this.toBuffer()
         });
+    } else {
+        console.log("found no mouth");
     }
 }
 
 function onFaceFound(err, faces) {
     if (err) throw err;
-    console.log("callback for face is called");
-    console.log("found " + faces.length + "face");
+    console.log("found faces: " + faces.length);
     var oldFace = faces[0];
     var im2 = this.roi(oldFace.x, oldFace.y, oldFace.width, oldFace.height);
     for (var i = 0; i < faces.length; i++) {
@@ -114,14 +114,15 @@ function onFaceFound(err, faces) {
 
 function analyzeAndSendImage() {
     if (camera) {
+        var curTime = new Date().getTime();
         camera.read(function (err, im) {
             if (err) throw err;
             if (im.width() < 1 || im.height() < 1) return;
-            var curTime = new Date().getTime();
-            console.log("should i update? " + (curTime > nextUpdate));
+
             if (curTime > nextUpdate) {
+                console.log("updating: " + (curTime - nextUpdate));
                 im.detectObject('haarcascades/haarcascade_frontalface_alt.xml', {}, onFaceFound.bind(im));
-                nextUpdate = curTime + 10 * 1000;
+                nextUpdate = curTime + DELAY_IN_SEC;
             }
             io.sockets.emit('live-stream', {
                 buffer: im.toBuffer()

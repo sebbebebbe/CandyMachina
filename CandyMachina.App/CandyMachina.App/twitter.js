@@ -15,17 +15,17 @@ Twitter.prototype = {
     postStatus: function(status) {
         this.client.post('statuses/update', status,  function(error, tweet, response) {
             if(error) throw error;
-            console.log(tweet);  // Tweet body.
-            console.log(response);  // Raw response object.
+            //console.log(tweet);  // Tweet body.
+            //console.log(response);  // Raw response object.
         });
     },
     postImage: function(message, tags, data) {
-	var self = this;
+	    var self = this;
         this.client.post('media/upload', {media: data},  function(error, media, response) {
             if (!error) {
 
                 // If successful, a media object will be returned.
-                console.log(media);
+                // console.log(media);
 
                 // Lets tweet it
                 var status = {
