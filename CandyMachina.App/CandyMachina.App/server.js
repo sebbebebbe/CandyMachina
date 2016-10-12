@@ -76,7 +76,8 @@ var DELAY_IN_SEC = 20 * 1000;
 
 function onSmileFound(err, mouth) {
     if (err) throw err;
-    if (mouth.length > 0) {
+    if (mouth.length > 0 && curTime > nextUpdate) {
+        console.log('Smile detected');
         if (settings.twitter.enable) {
             console.log("i am now tweeting");
             this.convertGrayscale();
@@ -84,7 +85,7 @@ function onSmileFound(err, mouth) {
         } else {
             console.log("twitter is disabled");
         }
-        console.log('Smile detected');
+
         dispenser.turn();
         console.log("mouth cordinates: " + mouth[0].x + ' ' + mouth[0].y);
         //this.rectangle([face.x + mouth[0].x, face.y + mouth[0].y], [mouth[0].width, mouth[0].height], [0, 255, 255], 2);
