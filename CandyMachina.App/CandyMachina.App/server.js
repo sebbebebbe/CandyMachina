@@ -81,8 +81,8 @@ function onSmileFound(err, mouth) {
 
         if (settings.twitter.enable && curTime > nextUpdate) {
             console.log("i am now tweeting ************************************** " + nextUpdate);
-            im.convertGrayscale();
-            twitter.postImage(settings.twitter.message, twitterTags(), im.toBuffer());
+            this.convertGrayscale();
+            twitter.postImage(settings.twitter.message, twitterTags(), this.toBuffer());
             nextUpdate = curTime + 10 * 1000;
         } else {
             console.log("twitter is disabled");
@@ -90,9 +90,9 @@ function onSmileFound(err, mouth) {
         console.log('Smile detected');
         dispenser.turn();
         console.log(mouth[0].x + ' ' + mouth[0].y);
-        im.rectangle([face.x + mouth[0].x, face.y + mouth[0].y], [mouth[0].width, mouth[0].height], [0, 255, 255], 2);
+        this.rectangle([face.x + mouth[0].x, face.y + mouth[0].y], [mouth[0].width, mouth[0].height], [0, 255, 255], 2);
         io.sockets.emit('live-stream', {
-            buffer: im.toBuffer()
+            buffer: this.toBuffer()
         });
     }
 }
@@ -102,16 +102,17 @@ function onFaceFound(err, faces) {
     console.log("callback for face is called");
     console.log("found " + faces.length + "face");
     var oldFace = faces[0];
+    var im2;
     for (var i = 0; i < faces.length; i++) {
-        face = faces[i];
+        var face = faces[i];
         this.rectangle([face.x, face.y], [face.width, face.height], COLOR, THICKSNESS);
 
         if (face.width > oldFace.width && face.height > oldFace.height) {
             oldFace = face;
-            im2 = im.roi(face.x, face.y, face.width, face.height);
+            im2 = this.roi(face.x, face.y, face.width, face.height);
         }
     }
-    im2.detectObject('haarcascades/smiled_01.xml', {}, onSmileFound);
+    im2.detectObject('haarcascades/smiled_01.xml', {}, onSmileFound.bind(this));
 }
 
 function analyzeAndSendImage() {
