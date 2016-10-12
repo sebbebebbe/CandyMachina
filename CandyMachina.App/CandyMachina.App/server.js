@@ -26,7 +26,6 @@ http.listen(config['port'], function () {
 });
 
 
-
 io.on('connection', function (socket) {
     socket.on('start-stream', function () {
         if (!isStreaming) {
@@ -98,33 +97,40 @@ function onSmileFound(err, mouth) {
     }
 }
 
+function onFaceFound(err, faces) {
+    if (err) throw err;
+    console.log("callback for face is called");
+    console.log("found " + faces.length + "face");
+    var oldFace = faces[0];
+    for (var i = 0; i < faces.length; i++) {
+        face = faces[i];
+        im.rectangle([face.x, face.y], [face.width, face.height], COLOR, 2);
+
+        if (face.width > oldFace.width && face.height > oldFace.height) {
+            oldFace = face;
+            im2 = im.roi(face.x, face.y, face.width, face.height);
+
+        }
+    }
+    im2.detectObject('haarcascades/smiled_01.xml', {}, onSmileFound);
+}
+
 function analyzeAndSendImage() {
-    if (camera)
+    if (camera) {
         camera.read(function (err, im) {
             if (err) throw err;
             if (im.width() < 1 || im.height() < 1) return;
-
-            im.detectObject('haarcascades/haarcascade_frontalface_alt.xml', {}, function (err, faces) {
-                if (err) throw err;
-                console.log("callback for face is called");
-                console.log("found " + faces.length + "face");
-                var oldFace = faces[0];
-                for (var i = 0; i < faces.length; i++) {
-                    face = faces[i];
-                    im.rectangle([face.x, face.y], [face.width, face.height], COLOR, 2);
-
-                    if( face.width > oldFace.width && face.height > oldFace.height) {
-                       oldFace = face;
-                        im2 = im.roi(face.x, face.y, face.width, face.height);
-                        im2.detectObject('haarcascades/smiled_01.xml', {}, onSmileFound);
-                    }
-                }
-            });
+            var curTime = new Date().getTime();
+            console.log("should i update? " + curTime > nextUpdate);
+            if (curTime > nextUpdate) {
+                im.detectObject('haarcascades/haarcascade_frontalface_alt.xml', {}, onfaceFound);
+                nextTwitter = curTime + 10 * 1000;
+            }
             io.sockets.emit('live-stream', {
                 buffer: im.toBuffer()
             });
-
         });
+    }
 }
 
 function getAbsoluteImagePath() {
@@ -136,7 +142,7 @@ app.get('/', function (req, res) {
     res.send(index);
 });
 
-app.get('/turn', function(req,res){
+app.get('/turn', function (req, res) {
     res.send('turning one complete rotation');
     dispenser.turn();
 });
