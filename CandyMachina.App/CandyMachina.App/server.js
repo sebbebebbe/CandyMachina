@@ -15,7 +15,7 @@ var intervalObj;
 var config = configLoader.get();
 var process;
 var isStreaming = false;
-var nextTwitter = new Date().getTime();
+var nextUpdate = new Date().getTime();
 
 
 //dsiabled for now since its simpler to test remotely
@@ -79,11 +79,11 @@ function onSmileFound(err, mouth) {
     if (mouth[0]) {
         var curTime = new Date().getTime();
 
-        if (settings.twitter.enable && curTime > nextTwitter) {
-            console.log("i am now tweeting ************************************** " + nextTwitter);
+        if (settings.twitter.enable && curTime > nextUpdate) {
+            console.log("i am now tweeting ************************************** " + nextUpdate);
             im.convertGrayscale();
             twitter.postImage(settings.twitter.message, twitterTags(), im.toBuffer());
-            nextTwitter = curTime + 10 * 1000;
+            nextUpdate = curTime + 10 * 1000;
         } else {
             console.log("twitter is disabled");
         }
@@ -123,7 +123,7 @@ function analyzeAndSendImage() {
             console.log("should i update? " + curTime > nextUpdate);
             if (curTime > nextUpdate) {
                 im.detectObject('haarcascades/haarcascade_frontalface_alt.xml', {}, onFaceFound.bind(im));
-                nextTwitter = curTime + 10 * 1000;
+                nextUpdate = curTime + 10 * 1000;
             }
             io.sockets.emit('live-stream', {
                 buffer: im.toBuffer()
