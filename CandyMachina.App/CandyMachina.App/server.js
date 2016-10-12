@@ -15,6 +15,7 @@ var intervalObj;
 var config = configLoader.get();
 var process;
 var isStreaming = false;
+var curTime = new Date().getTime();
 var nextUpdate = new Date().getTime();
 
 
@@ -71,13 +72,13 @@ if (camera) {
 
 var COLOR = [0, 255, 0]; // default red
 var THICKSNESS = 2; // default 1
-var DELAY_IN_SEC = 20 * 1000;  
+var DELAY_IN_SEC = 20 * 1000;
 
 function onSmileFound(err, mouth) {
     if (err) throw err;
     if (mouth.length > 0) {
         if (settings.twitter.enable) {
-            console.log("i am now tweeting);
+            console.log("i am now tweeting");
             this.convertGrayscale();
             twitter.postImage(settings.twitter.message, twitterTags(), this.toBuffer());
         } else {
@@ -90,6 +91,7 @@ function onSmileFound(err, mouth) {
         io.sockets.emit('live-stream', {
             buffer: this.toBuffer()
         });
+        nextUpdate = curTime + DELAY_IN_SEC;
     } else {
         console.log("found no mouth");
     }
@@ -114,7 +116,7 @@ function onFaceFound(err, faces) {
 
 function analyzeAndSendImage() {
     if (camera) {
-        var curTime = new Date().getTime();
+        curTime = new Date().getTime();
         camera.read(function (err, im) {
             if (err) throw err;
             if (im.width() < 1 || im.height() < 1) return;
@@ -122,7 +124,7 @@ function analyzeAndSendImage() {
             if (curTime > nextUpdate) {
                 console.log("updating: " + (curTime - nextUpdate));
                 im.detectObject('haarcascades/haarcascade_frontalface_alt.xml', {}, onFaceFound.bind(im));
-                nextUpdate = curTime + DELAY_IN_SEC;
+
             }
             io.sockets.emit('live-stream', {
                 buffer: im.toBuffer()
