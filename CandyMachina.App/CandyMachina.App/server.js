@@ -79,13 +79,16 @@ var SHALLOWUDATE_IN_SEC = 1 * 1000;
 
 function onSmileFound(err, mouth) {
     if (err) throw err;
-    console.log("found mouths: " + mouth.length + " " + (curTIme > nextUpdate));
+    console.log("found mouths: " + mouth.length + " " + (curTime > nextUpdate));
     if (mouth.length > 0 && curTime > nextUpdate) {
         console.log('Smile detected');
         if (settings.twitter.enable) {
             console.log("i am now tweeting");
-            this.convertGrayscale();
-            twitter.postImage(settings.twitter.message, twitterTags(), this.toBuffer());
+            var image = this;
+            setTimeOut(function() {
+                    image.convertGrayscale();
+                    twitter.postImage(settings.twitter.message, twitterTags(), image.toBuffer());
+                }, 1);
         } else {
             console.log("twitter is disabled");
         }
@@ -124,7 +127,7 @@ function analyzeAndSendImage() {
                 buffer: im.toBuffer()
             });
             if (curTime > nextUpdate && curTime > nextShallowUpdate) {
-                mextShallowUpdate = curTime + SHALLOWUDATE_IN_SEC;
+                nextShallowUpdate = curTime + SHALLOWUDATE_IN_SEC;
                 console.log("updating: " + ((curTime - nextUpdate)/1000));
                 im.detectObject('haarcascades/haarcascade_frontalface_alt.xml', {}, onFaceFound.bind(im));
             }
