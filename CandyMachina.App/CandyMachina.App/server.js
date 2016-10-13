@@ -32,8 +32,6 @@ io.on('connection', function (socket) {
     socket.on('start-stream', function () {
         if (!isStreaming) {
             startStreaming();
-        } else {
-            sendImage();
         }
     });
 
@@ -122,7 +120,7 @@ function analyzeAndSendImage() {
         camera.read(function (err, im) {
             if (err) throw err;
             if (im.width() < 1 || im.height() < 1) return;
-            image.convertGrayscale();
+            im.convertGrayscale();
             imageBuffer = im.toBuffer();
             io.sockets.emit('live-stream', {
                 buffer: imageBuffer
