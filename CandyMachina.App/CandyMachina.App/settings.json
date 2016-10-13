@@ -3,7 +3,7 @@
       "enable": true,
       "key": "something",
       "message": "Getting free candy!",
-      "tags": [ "öredev", "webstep","freecandy", "candymachine" ]
+      "tags": []
     },
     "keyMessage": "hello world",
     "server": {

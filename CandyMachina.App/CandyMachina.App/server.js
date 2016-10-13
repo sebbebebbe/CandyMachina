@@ -75,7 +75,7 @@ var COLOR = [0, 255, 0]; // default red
 var THICKSNESS = 2; // default 1
 var DELAY_IN_SEC = 20 * 1000;
 var SHALLOWUDATE_IN_SEC = 1 * 1000;
-
+var imaageBuffer;
 
 function onSmileFound(err, mouth) {
     if (err) throw err;
@@ -85,9 +85,8 @@ function onSmileFound(err, mouth) {
         if (settings.twitter.enable) {
             console.log("i am now tweeting");
             var image = this;
-            setTimeOut(function() {
-                    image.convertGrayscale();
-                    twitter.postImage(settings.twitter.message, twitterTags(), image.toBuffer());
+            setTimeout(function() {
+                    twitter.postImage(settings.twitter.message, twitterTags(), imageBuffer);
                 }, 1);
         } else {
             console.log("twitter is disabled");
@@ -123,8 +122,10 @@ function analyzeAndSendImage() {
         camera.read(function (err, im) {
             if (err) throw err;
             if (im.width() < 1 || im.height() < 1) return;
+            image.convertGrayscale();
+            imageBuffer = im.toBuffer();
             io.sockets.emit('live-stream', {
-                buffer: im.toBuffer()
+                buffer: imageBuffer
             });
             if (curTime > nextUpdate && curTime > nextShallowUpdate) {
                 nextShallowUpdate = curTime + SHALLOWUDATE_IN_SEC;
