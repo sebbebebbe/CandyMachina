@@ -1,6 +1,5 @@
 var app = require('express')();
 var http = require('http').createServer(app);
-var io = require('socket.io')(http);
 var fs = require('fs');
 var path = require('path');
 var configLoader = require('config-json');
@@ -19,27 +18,8 @@ var curTime = new Date().getTime();
 var nextUpdate = curTime;
 var nextShallowUpdate = curTime;
 
-
-//dsiabled for now since its simpler to test remotely
-//io.origins(config['client-host'] + ':' + config['client-port']);
-
 http.listen(config['port'], function () {
     console.log('listening on *:' + config['port']);
-});
-
-
-io.on('connection', function (socket) {
-    socket.on('start-stream', function () {
-        if (!isStreaming) {
-            startStreaming();
-        }
-    });
-
-    socket.on('disconnect', function () {
-        if (io.engine.clientsCount == 0) {
-            stopStreaming();
-        }
-    });
 });
 
 function twitterTags() {
@@ -49,18 +29,6 @@ function twitterTags() {
         data += '#' + settings.twitter.tags[key];
     }
     return data;
-}
-
-function startStreaming() {
-    console.log('Starting stream.');
-    isStreaming = true;
-    intervalObj = setInterval(analyzeAndSendImage, config['capture-rate']);
-}
-
-function stopStreaming() {
-    console.log('Stopping stream.');
-    isStreaming = false;
-    clearInterval(intervalObj);
 }
 
 var camera = cv ? new cv.VideoCapture(0) : console.log("cv not found");
@@ -73,7 +41,7 @@ var COLOR = [0, 255, 0]; // default red
 var THICKSNESS = 2; // default 1
 var DELAY_IN_SEC = 20 * 1000;
 var SHALLOWUDATE_IN_SEC = 1 * 1000;
-var imaageBuffer;
+var imageBuffer;
 
 function onSmileFound(err, mouth) {
     if (err) throw err;
@@ -84,8 +52,8 @@ function onSmileFound(err, mouth) {
             console.log("i am now tweeting");
             var image = this;
             setTimeout(function() {
-                    twitter.postImage(settings.twitter.message, twitterTags(), imageBuffer);
-                }, 1);
+                twitter.postImage(settings.twitter.message, twitterTags(), imageBuffer);
+            }, 1);
         } else {
             console.log("twitter is disabled");
         }
@@ -122,9 +90,6 @@ function analyzeAndSendImage() {
             if (im.width() < 1 || im.height() < 1) return;
             im.convertGrayscale();
             imageBuffer = im.toBuffer();
-            io.sockets.emit('live-stream', {
-                buffer: imageBuffer
-            });
             if (curTime > nextUpdate && curTime > nextShallowUpdate) {
                 nextShallowUpdate = curTime + SHALLOWUDATE_IN_SEC;
                 console.log("updating: " + ((curTime - nextUpdate)/1000));
@@ -134,9 +99,7 @@ function analyzeAndSendImage() {
     }
 }
 
-function getAbsoluteImagePath() {
-    return path.join(config['image-path'], config['image-name']);
-}
+var intervalObj = setInterval(analyzeAndSendImage, 1000);
 
 var index = fs.readFileSync(__dirname + "/client.html", 'utf8').replace(/{url}/g, '192.168.1.37' + ':' + config['port']);
 app.get('/', function (req, res) {
